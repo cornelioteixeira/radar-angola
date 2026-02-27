@@ -156,7 +156,8 @@ if not df.empty:
     )
 
     st.pydeck_chart(pdk.Deck(
-        map_style='mapbox://styles/mapbox/dark-v11', 
+        # 'dark' é um estilo embutido que funciona melhor em nuvem sem tokens extras
+        map_style='dark', 
         initial_view_state=view_state,
         layers=[layer],
         tooltip={
