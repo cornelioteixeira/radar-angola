@@ -128,22 +128,23 @@ if not df.empty:
         pitch=40
     )
 
-    # Configuração do Ícone
-    icon_data = {
-        "url": "https://img.icons8.com/m_sharp/200/FFFFFF/airplane-mode-on.png",
-        "width": 128,
-        "height": 128,
-        "anchorY": 64
-    }
-    df['icon_data'] = [icon_data for _ in range(len(df))]
+    # Processamento para o Mapa
     df['heading_deg'] = df['Direção (graus)']
+
+    # URL estável para o ícone do avião
+    PLANE_ICON_URL = "https://img.icons8.com/m_sharp/200/FFFFFF/airplane-mode-on.png"
 
     layer = pdk.Layer(
         "IconLayer",
         df,
         get_position='[longitude, latitude]',
-        get_icon='icon_data',
-        get_size=5,
+        get_icon=f'''{{
+            "url": "{PLANE_ICON_URL}",
+            "width": 128,
+            "height": 128,
+            "anchorY": 64
+        }}''',
+        get_size=6, # Aumentado ligeiramente para visibilidade
         size_scale=10,
         get_angle="-heading_deg",
         pickable=True,
@@ -154,7 +155,7 @@ if not df.empty:
         initial_view_state=view_state,
         layers=[layer],
         tooltip={
-            "html": "<b>Voo:</b> {Identificação}<br/><b>Matrícula:</b> {Matrícula}<br/><b>Altitude:</b> {Altitude (pés)} ft<br/><b>Velocidade:</b> {Velocidade (nós)} kts",
+            "html": "<b>Voo:</b> {{Identificação}}<br/><b>Matrícula:</b> {{Matrícula}}<br/><b>Altitude:</b> {{Altitude (pés)}} ft<br/><b>Velocidade:</b> {{Velocidade (nós)}} kts",
             "style": {"color": "white"}
         }
     ))
@@ -202,6 +203,13 @@ st.sidebar.write(f"Última atualização: {time.strftime('%H:%M:%S')}")
 if st.sidebar.button("Forçar Atualização"):
     st.cache_data.clear()
     st.rerun()
+
+# Debug Section
+with st.sidebar.expander("🛠️ Modo de Diagnóstico"):
+    st.write("Dados brutos carregados:")
+    st.write(f"Linhas: {len(df)}")
+    if st.checkbox("Mostrar JSON de Teste"):
+        st.json(df.head(2).to_dict(orient='records'))
 
 st.sidebar.markdown("---")
 st.sidebar.warning("Note: Este radar usa uma biblioteca não-oficial para fins educativos.")
