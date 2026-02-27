@@ -133,29 +133,34 @@ if not df.empty:
 
     # URL estável para o ícone do avião
     PLANE_ICON_URL = "https://img.icons8.com/m_sharp/200/FFFFFF/airplane-mode-on.png"
+    
+    # Criar coluna de icon_data - Modo mais estável para Streamlit Cloud
+    df['icon_data'] = [
+        {
+            "url": PLANE_ICON_URL,
+            "width": 128,
+            "height": 128,
+            "anchorY": 64
+        } for _ in range(len(df))
+    ]
 
     layer = pdk.Layer(
         "IconLayer",
         df,
         get_position='[longitude, latitude]',
-        get_icon=f'''{{
-            "url": "{PLANE_ICON_URL}",
-            "width": 128,
-            "height": 128,
-            "anchorY": 64
-        }}''',
-        get_size=6, # Aumentado ligeiramente para visibilidade
+        get_icon='icon_data',
+        get_size=6,
         size_scale=10,
         get_angle="-heading_deg",
         pickable=True,
     )
 
     st.pydeck_chart(pdk.Deck(
-        map_style='dark', 
+        map_style='mapbox://styles/mapbox/dark-v11', 
         initial_view_state=view_state,
         layers=[layer],
         tooltip={
-            "html": "<b>Voo:</b> {{Identificação}}<br/><b>Matrícula:</b> {{Matrícula}}<br/><b>Altitude:</b> {{Altitude (pés)}} ft<br/><b>Velocidade:</b> {{Velocidade (nós)}} kts",
+            "html": "<b>Voo:</b> {Identificação}<br/><b>Matrícula:</b> {Matrícula}<br/><b>Altitude:</b> {Altitude (pés)} ft<br/><b>Velocidade:</b> {Velocidade (nós)} kts",
             "style": {"color": "white"}
         }
     ))
